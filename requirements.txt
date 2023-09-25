@@ -1,0 +1,7 @@
+jupyter
+pandas
+torch
+mypy
+labelImg
+opencv-python
+torchvision

@@ -1,0 +1,55 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+  DIR_ENV: .venv
+  YOLO_V5: yolov5
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+      - go-task list
+    silent: true
+
+  venv:
+    desc: create venv the general environment
+    cmds:
+      - |
+        if [ -d  {{.DIR_ENV}} ]; then
+          echo "{{.DIR_ENV}} is already present"
+          source .venv/bin/activate
+          pip install --upgrade pip black
+          pip install --upgrade -r requirements.txt
+        else
+          python3 -m venv {{.DIR_ENV}}
+          source .venv/bin/activate
+          pip install pip black
+          pip install -r requirements.txt
+        fi
+
+  yolov5:init:
+    desc: init yolov5 project (clone repo and install dependencies)
+    cmds:
+      - |
+        if [ -d  {{.YOLO_V5}} ]; then
+          echo "{{.YOLO_V5}} is already present"
+        else
+          git clone https://github.com/ultralytics/yolov5 {{.YOLO_V5}}
+        fi
+        source .venv/bin/activate
+        pip install -r yolov5/requirements.txt
+      - task: yolov5:data
+
+  yolov5:data:
+    cmds:
+      - mkdir -p ./data && cd ./data
+      - |
+        curl -L "https://public.roboflow.com/ds/z1Zwrn5Pz2?key=aXVucnqPr3" > roboflow.zip
+        unzip roboflow.zip
+        rm roboflow.zip
+
+  yolov5:start:
+    - jupyter notebook yolov5.ipynb
